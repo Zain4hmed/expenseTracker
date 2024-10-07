@@ -2,9 +2,175 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 800px;
+        }
+
+        .expenses-list {
+            width: 250px;
+            margin-right: 20px;
+        }
+
+        .expenses-list h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .expenses-list ul {
+            list-style-type: none;
+            padding: 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .expenses-list li {
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .balance-view {
+            flex-grow: 1;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 32px;
+            margin: 0;
+        }
+
+        .input-section {
+            margin-top: 20px;
+        }
+
+        #expense-input, #note-input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            width: 200px;
+        }
+
+    </style>
 </head>
 <body>
+<div class="container">
+    <!-- Expense List on the left -->
+    <div class="expenses-list">
+        <h3>Expenses</h3>
+        <ul id="expenses-list">
+            <!-- Dynamic list of expenses will be added here -->
+        </ul>
+    </div>
 
+    <!-- Balance and Input Section -->
+    <div class="balance-view">
+        <h1>Monthly Expense Tracker</h1>
+        <div>
+            <h2>Remaining Balance: $<span id="balance">1000</span></h2>
+        </div>
+        <div class="input-section">
+            <input type="number" id="expense-input" placeholder="Enter amount" min="0">
+
+            <!-- Note input with datalist for prefilled options -->
+            <input list="preset-notes" id="note-input" placeholder="Optional note or select from list">
+            <datalist id="preset-notes">
+                <option value="Food">
+                <option value="Travel">
+                <option value="Shopping">
+                <option value="Bills">
+                <option value="Miscellaneous">
+            </datalist>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize balance and expenses array
+    let balance = 1000;
+    const startingBalance = 1000;  // Starting balance to calculate color transition
+    const expenses = [];
+
+    // Add event listener for 'Enter' key on the expense and note input fields
+    document.getElementById('expense-input').addEventListener('keydown', handleEnterKey);
+    document.getElementById('note-input').addEventListener('keydown', handleEnterKey);
+
+    function handleEnterKey(event) {
+        if (event.key === "Enter") {
+            const expenseInput = document.getElementById('expense-input');
+            const noteInput = document.getElementById('note-input');
+            const expenseValue = parseFloat(expenseInput.value);
+            const noteValue = noteInput.value;
+
+            if (!isNaN(expenseValue) && expenseValue > 0) {
+                // Subtract expense from balance
+                balance -= expenseValue;
+                updateBalanceColor(); // Update color based on new balance
+                document.getElementById('balance').innerText = balance;
+
+                // Add the expense and note to the list
+                expenses.push({ amount: expenseValue, note: noteValue });
+                updateExpenseList();
+
+                // Clear the input fields
+                expenseInput.value = '';
+                noteInput.value = '';
+            } else {
+                alert('Please enter a valid amount');
+            }
+        }
+    }
+
+    function updateBalanceColor() {
+        const balanceElement = document.getElementById('balance');
+
+        // Calculate the proportion of the current balance to the starting balance
+        const percentage = balance / startingBalance;
+
+        // Use the percentage to determine the red intensity (0 to 255)
+        const redIntensity = Math.floor(255 * (1 - percentage));
+
+        // Set the text color dynamically
+        balanceElement.style.color = `rgb(${redIntensity}, 0, 0)`;
+    }
+
+    function updateExpenseList() {
+        const expenseList = document.getElementById('expenses-list');
+        expenseList.innerHTML = ''; // Clear previous list
+
+        expenses.forEach(expense => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `- $${expense.amount} (${expense.note || 'No note'})`;
+            expenseList.appendChild(listItem);
+        });
+    }
+</script>
 </body>
 </html>
